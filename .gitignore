@@ -4,5 +4,3 @@
 *~
 dist-newstyle
 .dir-locals.el
-*.local
-dist-local-build/

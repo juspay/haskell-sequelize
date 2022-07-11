@@ -1,0 +1,76 @@
+name:                sequelize
+version:             1.1.0.0
+license:             BSD3
+author:              "Artyom Kazak"
+maintainer:          "artyom.kazak@juspay.in"
+copyright:           "2020 Juspay"
+
+extra-source-files:
+  - README.md
+
+description:         A port of <https://github.com/juspay/purescript-sequelize> into Haskell
+
+default-extensions:
+  - AllowAmbiguousTypes
+  - RankNTypes
+  - ScopedTypeVariables
+  - StandaloneDeriving
+  - EmptyDataDecls
+  - FlexibleContexts
+  - FlexibleInstances
+  - FunctionalDependencies
+  - KindSignatures
+  - TypeOperators
+  - MultiParamTypeClasses
+  - TypeFamilies
+  - OverloadedLabels
+  - OverloadedStrings
+  - DeriveFunctor
+  - DeriveGeneric
+  - DataKinds
+  - DerivingStrategies
+  - ConstraintKinds
+  - UndecidableInstances
+  - InstanceSigs
+  - BlockArguments
+  - LambdaCase
+  - EmptyDataDeriving
+  - TypeOperators
+  - ViewPatterns
+  - KindSignatures
+
+dependencies:
+  - base >= 4.7 && < 5
+  - unordered-containers
+  - vector
+  - containers
+  - beam-core
+  - beam-mysql
+  - beam-postgres
+  - beam-sqlite
+  - generic-lens
+  - text
+  - bytestring
+  - named
+  - aeson
+
+ghc-options:
+  - -Wall
+
+library:
+  source-dirs:
+    - src
+
+tests:
+  sequelize-test:
+    main:                Test.hs
+    source-dirs:
+      - test
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - sequelize
+      - tasty
+      - tasty-hunit

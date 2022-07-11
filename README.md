@@ -124,6 +124,3 @@ Stack:
 $ stack build
 $ stack test
 ```
-`stack test` doesn't work, because stack does not able to set `lenient` flag for cabal.
-Use cabal tests instead.
-Be sure the repo has `cabal.project.local` with `packages: ../beam-mysql` inside. Then run `euler dev` and then `cabal test -f lenient`

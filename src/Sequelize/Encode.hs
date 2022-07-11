@@ -44,13 +44,9 @@ encodeClause dt w =
         Is column val -> foldIs column val
       foldAnd = \case
         [] -> HM.empty
-        [x] -> foldWhere' x
-        xs
-          | Just maps <- mapM fromIs xs -> mconcat maps
-          | otherwise -> HM.singleton "$and" (Aeson.toJSON $ map foldWhere' xs)
+        xs -> HM.singleton "$and" (Aeson.toJSON $ map foldWhere' xs)
       foldOr = \case
         [] -> HM.empty
-        [x] -> foldWhere' x
         xs -> HM.singleton "$or" (Aeson.toJSON $ map foldWhere' xs)
       foldIs :: Aeson.ToJSON a => Column table value -> Term be a -> Aeson.Object
       foldIs column val =
@@ -58,10 +54,6 @@ encodeClause dt w =
               B._fieldName . fromColumnar' . column . columnize $
                 B.dbTableSettings dt
          in HM.singleton key $ encodeTerm val
-      fromIs :: Clause be table -> Maybe Aeson.Object
-      fromIs = \case
-        Is column val -> Just (foldIs column val)
-        _ -> Nothing
    in foldWhere' w
 
 -- Warning: the behavior for @Not (Like _)@, @Not (In _)@, @Not (Eq _)@ is

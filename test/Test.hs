@@ -2,17 +2,20 @@
 
 module Main where
 
+import qualified Data.ByteString.Builder
+import qualified Data.ByteString.Lazy as BSL
 import Data.Functor.Identity (Identity)
 import Data.Kind ()
 import Data.Text (Text)
+import qualified Data.Text.Encoding as T
 import qualified Database.Beam as B
+import qualified Database.Beam.MySQL as BM
+import Database.Beam.MySQL (MySQL)
 import GHC.Generics (Generic)
 import Named ((!), defaults)
 import Sequelize
 import Test.Tasty
 import Test.Tasty.HUnit
-import Database.Beam.MySQL.Extra
-
 
 ----------------------------------------------------------------------------
 -- Setup
@@ -44,6 +47,24 @@ instance ModelMeta TestT where
   modelFieldModification = B.tableModification
   modelTableName = "test"
 
+----------------------------------------------------------------------------
+-- Utils
+----------------------------------------------------------------------------
+
+renderSelect :: (B.SqlSelect MySQL a) -> Text
+renderSelect (B.SqlSelect a) =
+  T.decodeUtf8
+    $ BSL.toStrict
+    $ Data.ByteString.Builder.toLazyByteString
+    $ BM.unwrapInnerBuilder (BM.fromMysqlSelect a)
+
+renderUpdate :: (B.SqlUpdate MySQL a) -> Text
+renderUpdate (B.SqlUpdate _ a) =
+  T.decodeUtf8
+    $ BSL.toStrict
+    $ Data.ByteString.Builder.toLazyByteString
+    $ BM.unwrapInnerBuilder (BM.fromMysqlUpdate a)
+renderUpdate _ = error "not implemented"
 
 ----------------------------------------------------------------------------
 -- Tests
@@ -64,33 +85,33 @@ main =
 
 unit_select_simple :: IO ()
 unit_select_simple =
-  dumpSelectSQL
-    (sqlSelect
+  renderSelect
+    ( sqlSelect
         ! #where_ [Is enabled Null]
         ! defaults
     )
-    @?= Just "SELECT `t0`.`email` AS `res0`, `t0`.`enabled` AS `res1` \
+    @?= "SELECT `t0`.`email` AS `res0`, `t0`.`enabled` AS `res1` \
         \FROM `test` AS `t0` \
-        \WHERE (`t0`.`enabled`) IS NULL;"
+        \WHERE (`t0`.`enabled`) IS NULL"
 
 unit_select_eq_maybe :: IO ()
 unit_select_eq_maybe = do
-  dumpSelectSQL (sqlSelect ! #where_ [Is enabled (Eq Nothing)] ! defaults)
-    @?= Just "SELECT `t0`.`email` AS `res0`, `t0`.`enabled` AS `res1` \
-        \FROM `test` AS `t0` WHERE (`t0`.`enabled`) IS NULL;"
-  dumpSelectSQL (sqlSelect ! #where_ [Is enabled (Eq (Just True))] ! defaults)
-    @?= Just "SELECT `t0`.`email` AS `res0`, `t0`.`enabled` AS `res1` \
-        \FROM `test` AS `t0` WHERE (`t0`.`enabled`) = (TRUE);"
-  dumpSelectSQL (sqlSelect ! #where_ [Is enabled (Not (Eq Nothing))] ! defaults)
-    @?= Just "SELECT `t0`.`email` AS `res0`, `t0`.`enabled` AS `res1` \
-        \FROM `test` AS `t0` WHERE (`t0`.`enabled`) IS NOT NULL;"
-  dumpSelectSQL (sqlSelect ! #where_ [Is enabled (Not (Eq (Just True)))] ! defaults)
-    @?= Just "SELECT `t0`.`email` AS `res0`, `t0`.`enabled` AS `res1` \
-        \FROM `test` AS `t0` WHERE (`t0`.`enabled`) <> (TRUE);"
+  renderSelect (sqlSelect ! #where_ [Is enabled (Eq Nothing)] ! defaults)
+    @?= "SELECT `t0`.`email` AS `res0`, `t0`.`enabled` AS `res1` \
+        \FROM `test` AS `t0` WHERE (`t0`.`enabled`) IS NULL"
+  renderSelect (sqlSelect ! #where_ [Is enabled (Eq (Just True))] ! defaults)
+    @?= "SELECT `t0`.`email` AS `res0`, `t0`.`enabled` AS `res1` \
+        \FROM `test` AS `t0` WHERE (`t0`.`enabled`) = (TRUE)"
+  renderSelect (sqlSelect ! #where_ [Is enabled (Not (Eq Nothing))] ! defaults)
+    @?= "SELECT `t0`.`email` AS `res0`, `t0`.`enabled` AS `res1` \
+        \FROM `test` AS `t0` WHERE (`t0`.`enabled`) IS NOT NULL"
+  renderSelect (sqlSelect ! #where_ [Is enabled (Not (Eq (Just True)))] ! defaults)
+    @?= "SELECT `t0`.`email` AS `res0`, `t0`.`enabled` AS `res1` \
+        \FROM `test` AS `t0` WHERE (`t0`.`enabled`) <> (TRUE)"
 
 unit_select_full :: IO ()
 unit_select_full =
-  dumpSelectSQL
+  renderSelect
     ( sqlSelect
         ! #where_
           [ Is enabled (Not Null),
@@ -100,42 +121,42 @@ unit_select_full =
         ! #offset 8
         ! #limit 10
     )
-    @?= Just "SELECT `t0`.`email` AS `res0`, `t0`.`enabled` AS `res1` \
+    @?= "SELECT `t0`.`email` AS `res0`, `t0`.`enabled` AS `res1` \
         \FROM `test` AS `t0` \
         \WHERE ((`t0`.`enabled`) IS NOT NULL) \
         \AND (((`t0`.`email`) = ('a@example.com')) OR ((`t0`.`email`) = ('b@example.com'))) \
         \ORDER BY `t0`.`enabled` ASC, `t0`.`email` DESC \
-        \LIMIT 8, 10;"
+        \LIMIT 8, 10"
 
 unit_update_simple :: IO ()
 unit_update_simple =
-  dumpUpdateSQL
+  renderUpdate
     ( sqlUpdate
         ! #set [Set enabled Nothing]
         ! #where_ [Is enabled (Not Null)]
     )
-    @?= Just "UPDATE `test` \
+    @?= "UPDATE `test` \
         \SET `enabled`=NULL \
-        \WHERE (`enabled`) IS NOT NULL;"
+        \WHERE (`enabled`) IS NOT NULL"
 
 unit_update'_simple :: IO ()
 unit_update'_simple =
-  dumpUpdateSQL
+  renderUpdate
     ( sqlUpdate'
         ! #save (Test "a@example.com" (Just False))
         ! #where_ [Is email (Eq "a@example.com")]
     )
-    @?= Just "UPDATE `test` \
+    @?= "UPDATE `test` \
         \SET `email`='a@example.com', `enabled`=FALSE \
-        \WHERE (`email`) = ('a@example.com');"
+        \WHERE (`email`) = ('a@example.com')"
 
 unit_modelToSets :: IO ()
 unit_modelToSets = do
-  dumpUpdateSQL
+  renderUpdate
     ( sqlUpdate'
         ! #save (Test "a@example.com" Nothing)
         ! #where_ [Is email (Eq "a@example.com")]
     )
-    @?= Just "UPDATE `test` \
+    @?= "UPDATE `test` \
         \SET `email`='a@example.com', `enabled`=DEFAULT \
-        \WHERE (`email`) = ('a@example.com');"
+        \WHERE (`email`) = ('a@example.com')"

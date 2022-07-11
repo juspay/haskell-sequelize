@@ -360,8 +360,6 @@ applyWhere mbWhere_ = maybe id (B.filter_' . whereQ) mbWhere_
 class ModelMeta table where
   modelFieldModification :: table (B.FieldModification (B.TableField table))
   modelTableName :: Text
-  modelSchemaName :: Maybe Text
-  modelSchemaName = Nothing
   mkExprWithDefault :: forall be s.
     (B.BeamSqlBackend be, B.Beamable table,
      B.FieldsFulfillConstraint (B.BeamSqlBackendCanSerialize be) table) =>
@@ -389,7 +387,6 @@ modelTableEntity =
   let B.EntityModification modification =
         B.modifyTableFields (modelFieldModification @table)
           <> B.setEntityName (modelTableName @table)
-          <> B.setEntitySchema (modelSchemaName @table)
    in appEndo modification $ B.DatabaseEntity $ B.dbEntityAuto (modelTableName @table)
 
 modelTableEntityDescriptor ::

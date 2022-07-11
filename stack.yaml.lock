@@ -12,6 +12,69 @@ packages:
   original:
     hackage: named-0.3.0.1@sha256:2975d50c9c5d88095026ffc1303d2d9be52e5f588a8f8bcb7003a04b79f10a06,2312
 - completed:
+    name: beam-mysql
+    version: 0.3.0.0
+    git: https://github.com/juspay/beam-mysql
+    pantry-tree:
+      size: 542
+      sha256: c10362057a0140ebfc3050a26256da6d157eb652aad127282071807d383a0b3c
+    commit: 5d17599e02f30c220b679439ee0c1025e3086250
+  original:
+    git: https://github.com/juspay/beam-mysql
+    commit: 5d17599e02f30c220b679439ee0c1025e3086250
+- completed:
+    subdir: beam-core
+    name: beam-core
+    version: 0.9.0.0
+    git: https://github.com/juspay/beam
+    pantry-tree:
+      size: 2623
+      sha256: 365f420adf34642df7ffac56f80a578da48b3bebfac140748f3e163f83b4e37c
+    commit: f6a35d5361e96c766ae977e9a07fa40c6622808e
+  original:
+    subdir: beam-core
+    git: https://github.com/juspay/beam
+    commit: f6a35d5361e96c766ae977e9a07fa40c6622808e
+- completed:
+    subdir: beam-migrate
+    name: beam-migrate
+    version: 0.5.0.0
+    git: https://github.com/juspay/beam
+    pantry-tree:
+      size: 1825
+      sha256: 3ef904145e6e05e2f1cf6558e40f109f2751f08d2f8ce446f4e43ab70675936b
+    commit: f6a35d5361e96c766ae977e9a07fa40c6622808e
+  original:
+    subdir: beam-migrate
+    git: https://github.com/juspay/beam
+    commit: f6a35d5361e96c766ae977e9a07fa40c6622808e
+- completed:
+    subdir: beam-sqlite
+    name: beam-sqlite
+    version: 0.5.0.0
+    git: https://github.com/juspay/beam
+    pantry-tree:
+      size: 859
+      sha256: d28565e631ed326b35719b4f0b1825dbdda0daed39618bff3506b70f45b9d2e8
+    commit: f6a35d5361e96c766ae977e9a07fa40c6622808e
+  original:
+    subdir: beam-sqlite
+    git: https://github.com/juspay/beam
+    commit: f6a35d5361e96c766ae977e9a07fa40c6622808e
+- completed:
+    subdir: beam-postgres
+    name: beam-postgres
+    version: 0.5.0.0
+    git: https://github.com/juspay/beam
+    pantry-tree:
+      size: 2507
+      sha256: 324e99224bacf35d65f138d68a21fdb6b5c2377b32517048ad9c4e43a75e0846
+    commit: f6a35d5361e96c766ae977e9a07fa40c6622808e
+  original:
+    subdir: beam-postgres
+    git: https://github.com/juspay/beam
+    commit: f6a35d5361e96c766ae977e9a07fa40c6622808e
+- completed:
     hackage: dependent-map-0.4.0.0@sha256:ca2b131046f4340a1c35d138c5a003fe4a5be96b14efc26291ed35fd08c62221,1657
     pantry-tree:
       size: 551
@@ -60,41 +123,6 @@ packages:
       sha256: 33e1509b7d786d816a0974f08cfb6208a7d02c7d45937bec2c91586523b14440
   original:
     hackage: generic-lens-1.1.0.0
-- completed:
-    hackage: mason-0.2.4@sha256:9de93b2f429fee78f758bd11bea7e183756567bfae4acef369405733bb0538be,1226
-    pantry-tree:
-      size: 574
-      sha256: 52308ea42ca423d9f243d31a7d1f88515ccb8497d1bc07f857beb4b0428613f5
-  original:
-    hackage: mason-0.2.4@sha256:9de93b2f429fee78f758bd11bea7e183756567bfae4acef369405733bb0538be,1226
-- completed:
-    hackage: mysql-haskell-0.8.4.3@sha256:d3ca21ae8cc88670f8adb17c7cacb8bb770f1a58d60b5bff346d1f3fc843d98c,3489
-    pantry-tree:
-      size: 1754
-      sha256: c974f4d4f24bb7e17d633301a442a0a5162d30e163cad618a961d61192b6debc
-  original:
-    hackage: mysql-haskell-0.8.4.3@sha256:d3ca21ae8cc88670f8adb17c7cacb8bb770f1a58d60b5bff346d1f3fc843d98c,3489
-- completed:
-    hackage: record-dot-preprocessor-0.2.13@sha256:8eb71fdeb5286c71d5c4b0e7768ad14e19a79ae8a102c65c649b64419678332b,2538
-    pantry-tree:
-      size: 1078
-      sha256: d975de7bc84e142449273228bbfab0d8958e8a3503e7386bc1cd23417e301aba
-  original:
-    hackage: record-dot-preprocessor-0.2.13@sha256:8eb71fdeb5286c71d5c4b0e7768ad14e19a79ae8a102c65c649b64419678332b,2538
-- completed:
-    hackage: tcp-streams-1.0.1.1@sha256:35e9ecfa515797052f8c3c01834d2daebd5e93f3152c7fc98b32652bf6f0c052,2329
-    pantry-tree:
-      size: 1004
-      sha256: 572071fca40a0b6c4cc950d10277a6f12e83cf4846882b6ef83fcccaa2c18c45
-  original:
-    hackage: tcp-streams-1.0.1.1@sha256:35e9ecfa515797052f8c3c01834d2daebd5e93f3152c7fc98b32652bf6f0c052,2329
-- completed:
-    hackage: wire-streams-0.1.1.0@sha256:08816c7fa53b20f52e5c465252c106d9de8e6d9580ec0b6d9f000a34c7bcefc8,2130
-    pantry-tree:
-      size: 506
-      sha256: c99a12bfcbeacc5da8f166fbed1eb105a45f08be1a3a071fe9f903b386b14e1d
-  original:
-    hackage: wire-streams-0.1.1.0@sha256:08816c7fa53b20f52e5c465252c106d9de8e6d9580ec0b6d9f000a34c7bcefc8,2130
 snapshots:
 - completed:
     size: 496112
