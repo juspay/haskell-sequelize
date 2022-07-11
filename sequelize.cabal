@@ -1,0 +1,72 @@
+cabal-version: 2.0
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 492410794b7d56b74a2a0cc2cb2d4ea37d2c1711251fc612e511aab5adfc35e6
+
+name:           sequelize
+version:        1.1.1.0
+description:    A port of <https://github.com/juspay/purescript-sequelize> into Haskell
+author:         Artyom Kazak
+maintainer:     artyom.kazak@juspay.in
+copyright:      2020 Juspay
+license:        BSD3
+build-type:     Simple
+extra-source-files:
+    README.md
+
+library
+  exposed-modules:
+      Sequelize
+      Sequelize.Encode
+  other-modules:
+      Paths_sequelize
+  hs-source-dirs:
+      src
+  default-extensions: AllowAmbiguousTypes RankNTypes ScopedTypeVariables StandaloneDeriving EmptyDataDecls FlexibleContexts FlexibleInstances FunctionalDependencies KindSignatures TypeOperators MultiParamTypeClasses TypeFamilies OverloadedLabels OverloadedStrings DeriveFunctor DeriveGeneric DataKinds DerivingStrategies ConstraintKinds UndecidableInstances InstanceSigs BlockArguments LambdaCase EmptyDataDeriving TypeOperators ViewPatterns KindSignatures
+  ghc-options: -Wall
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , beam-core             ^>=0.9.0.0
+    , beam-mysql            ^>=1.3.0.4
+    , beam-postgres         ^>=0.5.0.0
+    , beam-sqlite           ^>=0.5.0.0
+    , bytestring
+    , containers
+    , generic-lens
+    , named
+    , text
+    , unordered-containers
+    , vector
+  default-language: Haskell2010
+
+test-suite sequelize-test
+  type: exitcode-stdio-1.0
+  main-is: Test.hs
+  other-modules:
+      Paths_sequelize
+  hs-source-dirs:
+      test
+  default-extensions: AllowAmbiguousTypes RankNTypes ScopedTypeVariables StandaloneDeriving EmptyDataDecls FlexibleContexts FlexibleInstances FunctionalDependencies KindSignatures TypeOperators MultiParamTypeClasses TypeFamilies OverloadedLabels OverloadedStrings DeriveFunctor DeriveGeneric DataKinds DerivingStrategies ConstraintKinds UndecidableInstances InstanceSigs BlockArguments LambdaCase EmptyDataDeriving TypeOperators ViewPatterns KindSignatures
+  ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , beam-core             ^>=0.9.0.0
+    , beam-mysql            ^>=1.3.0.4
+    , beam-postgres         ^>=0.5.0.0
+    , beam-sqlite           ^>=0.5.0.0
+    , bytestring
+    , containers
+    , generic-lens
+    , named
+    , sequelize
+    , tasty
+    , tasty-hunit
+    , text
+    , unordered-containers
+    , vector
+  default-language: Haskell2010

@@ -1,0 +1,8 @@
+.stack-work/
+.idea
+*.iml
+*~
+dist-newstyle
+.dir-locals.el
+*.local
+dist-local-build/
