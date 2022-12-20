@@ -1,4 +1,6 @@
-resolver: lts-15.15
+resolver: lts-20.4
+system-ghc: true
+allow-newer: true
 
 # NixOS support.
 # Disabled by default; use as `stack run --nix` or `stack build --nix`.
