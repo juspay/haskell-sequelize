@@ -12,7 +12,18 @@ packages:
 - .
 
 extra-deps:
-  - beam-mysql-0.2.0.0@sha256:6c64358de5094463a70e8c71dbc99a38ae937d04a44cee9858e8a0779bb7b8dd,2282
+
+  - git: https://github.com/winterland1989/word24.git
+    commit: 445f791e35ddc8098f05879dbcd07c41b115cb39
+
+  - git: https://github.com/arjunkathuria/beam-mysql
+    commit: da39c9bc7f4597bc40c3838ed7f2c9f073d25ad8
+
+  # # Needed for beam-mysql
+  - int-cast-0.2.0.0@sha256:06820c1c5335100c5021e01314cd498e4d248582622c36d8e7203fa4341cb6d0,1668
+  - mysql-haskell-0.8.4.3@sha256:d3ca21ae8cc88670f8adb17c7cacb8bb770f1a58d60b5bff346d1f3fc843d98c,3489
+  - binary-parsers-0.2.4.0@sha256:8c3a436df2d721cb3268c3c56f9ce982bc5dbcd6e6db4cce24e96d1d48078678,3595
+  - wire-streams-0.1.1.0@sha256:08816c7fa53b20f52e5c465252c106d9de8e6d9580ec0b6d9f000a34c7bcefc8,2130
 
 extra-include-dirs:
   - /usr/local/opt/openssl/include
