@@ -5,12 +5,55 @@
 
 packages:
 - completed:
-    hackage: beam-mysql-0.2.0.0@sha256:6c64358de5094463a70e8c71dbc99a38ae937d04a44cee9858e8a0779bb7b8dd,2282
+    commit: 445f791e35ddc8098f05879dbcd07c41b115cb39
+    git: https://github.com/winterland1989/word24.git
+    name: word24
     pantry-tree:
-      sha256: ed62694a4bf6afc18ab12dd7227d3aa64a575f387efe3b35fe95b1f3ce71a940
-      size: 389
+      sha256: e15be9bd109d3bf4f603b811a92b04776231473de10cbb69aed8e9e5827698f9
+      size: 758
+    version: 2.0.1
   original:
-    hackage: beam-mysql-0.2.0.0@sha256:6c64358de5094463a70e8c71dbc99a38ae937d04a44cee9858e8a0779bb7b8dd,2282
+    commit: 445f791e35ddc8098f05879dbcd07c41b115cb39
+    git: https://github.com/winterland1989/word24.git
+- completed:
+    commit: da39c9bc7f4597bc40c3838ed7f2c9f073d25ad8
+    git: https://github.com/arjunkathuria/beam-mysql
+    name: beam-mysql
+    pantry-tree:
+      sha256: be45d078ad1f7669ea06b63b585f95527abd6889199be047781ab25cbb959403
+      size: 4305
+    version: 1.3.0.4
+  original:
+    commit: da39c9bc7f4597bc40c3838ed7f2c9f073d25ad8
+    git: https://github.com/arjunkathuria/beam-mysql
+- completed:
+    hackage: int-cast-0.2.0.0@sha256:06820c1c5335100c5021e01314cd498e4d248582622c36d8e7203fa4341cb6d0,1668
+    pantry-tree:
+      sha256: 14ac1ac61570594503174ad96e61168e55fa3f562975c028afd854656bac11d9
+      size: 316
+  original:
+    hackage: int-cast-0.2.0.0@sha256:06820c1c5335100c5021e01314cd498e4d248582622c36d8e7203fa4341cb6d0,1668
+- completed:
+    hackage: mysql-haskell-0.8.4.3@sha256:d3ca21ae8cc88670f8adb17c7cacb8bb770f1a58d60b5bff346d1f3fc843d98c,3489
+    pantry-tree:
+      sha256: c974f4d4f24bb7e17d633301a442a0a5162d30e163cad618a961d61192b6debc
+      size: 1754
+  original:
+    hackage: mysql-haskell-0.8.4.3@sha256:d3ca21ae8cc88670f8adb17c7cacb8bb770f1a58d60b5bff346d1f3fc843d98c,3489
+- completed:
+    hackage: binary-parsers-0.2.4.0@sha256:8c3a436df2d721cb3268c3c56f9ce982bc5dbcd6e6db4cce24e96d1d48078678,3595
+    pantry-tree:
+      sha256: fc345d67d2cb2a08beb45626bd9d26eb294849eba7632068b270528ea788217a
+      size: 3556
+  original:
+    hackage: binary-parsers-0.2.4.0@sha256:8c3a436df2d721cb3268c3c56f9ce982bc5dbcd6e6db4cce24e96d1d48078678,3595
+- completed:
+    hackage: wire-streams-0.1.1.0@sha256:08816c7fa53b20f52e5c465252c106d9de8e6d9580ec0b6d9f000a34c7bcefc8,2130
+    pantry-tree:
+      sha256: c99a12bfcbeacc5da8f166fbed1eb105a45f08be1a3a071fe9f903b386b14e1d
+      size: 506
+  original:
+    hackage: wire-streams-0.1.1.0@sha256:08816c7fa53b20f52e5c465252c106d9de8e6d9580ec0b6d9f000a34c7bcefc8,2130
 snapshots:
 - completed:
     sha256: 3770dfd79f5aed67acdcc65c4e7730adddffe6dba79ea723cfb0918356fc0f94
