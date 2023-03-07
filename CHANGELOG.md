@@ -10,6 +10,6 @@ Do not use it for projects other than Mobilty yet, since it uses upstream Beam.
 
 Main changes : -
 
-* Upgrade to stackage lts-20.4 from lts-15.15
+* Upgrade to stackage lts-20.11 from lts-15.15
 * Upgrade to Aeson 2 & Migrate to Aeson 2 with is KeyMap syntax.
 * Upgrade to & use upstream Beam instead of internal Forks
