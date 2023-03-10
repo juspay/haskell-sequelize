@@ -16,8 +16,8 @@ extra-deps:
   - git: https://github.com/winterland1989/word24.git
     commit: 445f791e35ddc8098f05879dbcd07c41b115cb39
 
-  - git: https://github.com/arjunkathuria/beam-mysql
-    commit: da39c9bc7f4597bc40c3838ed7f2c9f073d25ad8
+  - git: https://github.com/juspay/beam-mysql
+    commit: f8d029e6861ade3335a9f96b7be3b306d8208dd8
 
   # # Needed for beam-mysql
   - int-cast-0.2.0.0@sha256:06820c1c5335100c5021e01314cd498e4d248582622c36d8e7203fa4341cb6d0,1668

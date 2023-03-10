@@ -16,16 +16,16 @@ packages:
     commit: 445f791e35ddc8098f05879dbcd07c41b115cb39
     git: https://github.com/winterland1989/word24.git
 - completed:
-    commit: da39c9bc7f4597bc40c3838ed7f2c9f073d25ad8
-    git: https://github.com/arjunkathuria/beam-mysql
+    commit: f8d029e6861ade3335a9f96b7be3b306d8208dd8
+    git: https://github.com/juspay/beam-mysql
     name: beam-mysql
     pantry-tree:
-      sha256: be45d078ad1f7669ea06b63b585f95527abd6889199be047781ab25cbb959403
+      sha256: 5a2c05b47c6201bc456b052aa90a8cb5f8f6820510700ee48ef13ee4f3be4e87
       size: 4305
     version: 1.3.0.4
   original:
-    commit: da39c9bc7f4597bc40c3838ed7f2c9f073d25ad8
-    git: https://github.com/arjunkathuria/beam-mysql
+    commit: f8d029e6861ade3335a9f96b7be3b306d8208dd8
+    git: https://github.com/juspay/beam-mysql
 - completed:
     hackage: int-cast-0.2.0.0@sha256:06820c1c5335100c5021e01314cd498e4d248582622c36d8e7203fa4341cb6d0,1668
     pantry-tree:
