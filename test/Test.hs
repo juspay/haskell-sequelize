@@ -11,7 +11,7 @@ import Named ((!), defaults)
 import Sequelize
 import Test.Tasty
 import Test.Tasty.HUnit
-import Database.Beam.MySQL.Extra
+import Database.Beam.MySQL
 
 
 ----------------------------------------------------------------------------

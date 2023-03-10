@@ -349,8 +349,8 @@ applyOrderBy mbOrderBy_ x = case mbOrderBy_ of
 applyWhere ::
   (B.BeamSqlBackend be, B.Beamable table) =>
   Maybe (Where be table) ->
-  (forall s. B.Q be db s (table (B.QExpr be s))) ->
-  (forall s. B.Q be db s (table (B.QExpr be s)))
+  (B.Q be db s (table (B.QExpr be s))) ->
+  (B.Q be db s (table (B.QExpr be s)))
 applyWhere mbWhere_ = maybe id (B.filter_' . whereQ) mbWhere_
 
 ----------------------------------------------------------------------------
