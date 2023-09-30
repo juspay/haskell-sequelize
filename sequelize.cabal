@@ -25,7 +25,34 @@ library
       Paths_sequelize
   hs-source-dirs:
       src
-  default-extensions: AllowAmbiguousTypes RankNTypes ScopedTypeVariables StandaloneDeriving EmptyDataDecls FlexibleContexts FlexibleInstances FunctionalDependencies KindSignatures TypeOperators MultiParamTypeClasses TypeFamilies OverloadedLabels OverloadedStrings DeriveFunctor DeriveGeneric DataKinds DerivingStrategies ConstraintKinds UndecidableInstances InstanceSigs BlockArguments LambdaCase EmptyDataDeriving TypeOperators ViewPatterns KindSignatures
+  default-extensions:
+      AllowAmbiguousTypes
+      RankNTypes
+      ScopedTypeVariables
+      StandaloneDeriving
+      EmptyDataDecls
+      FlexibleContexts
+      FlexibleInstances
+      FunctionalDependencies
+      KindSignatures
+      TypeOperators
+      MultiParamTypeClasses
+      TypeFamilies
+      OverloadedLabels
+      OverloadedStrings
+      DeriveFunctor
+      DeriveGeneric
+      DataKinds
+      DerivingStrategies
+      ConstraintKinds
+      UndecidableInstances
+      InstanceSigs
+      BlockArguments
+      LambdaCase
+      EmptyDataDeriving
+      TypeOperators
+      ViewPatterns
+      KindSignatures
   ghc-options: -Wall
   build-depends:
       aeson
@@ -41,6 +68,7 @@ library
     , text
     , unordered-containers
     , vector
+    , ghc-prim
   default-language: Haskell2010
 
 test-suite sequelize-test
@@ -50,7 +78,34 @@ test-suite sequelize-test
       Paths_sequelize
   hs-source-dirs:
       test
-  default-extensions: AllowAmbiguousTypes RankNTypes ScopedTypeVariables StandaloneDeriving EmptyDataDecls FlexibleContexts FlexibleInstances FunctionalDependencies KindSignatures TypeOperators MultiParamTypeClasses TypeFamilies OverloadedLabels OverloadedStrings DeriveFunctor DeriveGeneric DataKinds DerivingStrategies ConstraintKinds UndecidableInstances InstanceSigs BlockArguments LambdaCase EmptyDataDeriving TypeOperators ViewPatterns KindSignatures
+  default-extensions:
+      AllowAmbiguousTypes
+      RankNTypes
+      ScopedTypeVariables
+      StandaloneDeriving
+      EmptyDataDecls
+      FlexibleContexts
+      FlexibleInstances
+      FunctionalDependencies
+      KindSignatures
+      TypeOperators
+      MultiParamTypeClasses
+      TypeFamilies
+      OverloadedLabels
+      OverloadedStrings
+      DeriveFunctor
+      DeriveGeneric
+      DataKinds
+      DerivingStrategies
+      ConstraintKinds
+      UndecidableInstances
+      InstanceSigs
+      BlockArguments
+      LambdaCase
+      EmptyDataDeriving
+      TypeOperators
+      ViewPatterns
+      KindSignatures
   ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson

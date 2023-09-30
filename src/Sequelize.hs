@@ -68,6 +68,7 @@ import qualified Database.Beam.Query.Internal as B
 import qualified Database.Beam.Schema.Tables as B
 import GHC.Generics (Generic)
 import qualified GHC.Generics as G
+import GHC.Types (Type)
 import GHC.TypeLits (Symbol)
 import Named ((:!), (:?), arg, argF)
 
@@ -98,7 +99,7 @@ isClausesToWhere = fmap (\(IS c v) -> Is c (Eq v))
 data IS be table where
   IS :: (ToJSON value, Ord value, EqValue be value, Show value) => Column table value -> value -> IS be table
 
-data Clause be (table :: (* -> *) -> *) where
+data Clause be (table :: (Type -> Type) -> Type) where
   And :: [Clause be table] -> Clause be table
   Or :: [Clause be table] -> Clause be table
   Is ::
@@ -254,7 +255,7 @@ instance
   where
   getTableField = L.getField @name
 
-class GModelToSets be (table :: (* -> *) -> *) g where
+class GModelToSets be (table :: (Type -> Type) -> Type) g where
   gModelToSets :: g x -> [Set be table]
 
 instance
@@ -355,8 +356,8 @@ applyOrderBy mbOrderBy_ x = case mbOrderBy_ of
 applyWhere ::
   (B.BeamSqlBackend be, B.Beamable table) =>
   Maybe (Where be table) ->
-  (forall s. B.Q be db s (table (B.QExpr be s))) ->
-  (forall s. B.Q be db s (table (B.QExpr be s)))
+  (B.Q be db s (table (B.QExpr be s))) ->
+  (B.Q be db s (table (B.QExpr be s)))
 applyWhere mbWhere_ = maybe id (B.filter_' . whereQ) mbWhere_
 
 ----------------------------------------------------------------------------
