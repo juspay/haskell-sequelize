@@ -71,6 +71,7 @@ import qualified GHC.Generics as G
 import GHC.Types (Type)
 import GHC.TypeLits (Symbol)
 import Named ((:!), (:?), arg, argF)
+import Sequelize.SQLObject
 
 ----------------------------------------------------------------------------
 -- Column
@@ -97,13 +98,13 @@ isClausesToWhere :: WHERE be table -> Where be table
 isClausesToWhere = fmap (\(IS c v) -> Is c (Eq v))
 
 data IS be table where
-  IS :: (ToJSON value, Ord value, EqValue be value, Show value) => Column table value -> value -> IS be table
+  IS :: (ToJSON value, Ord value, EqValue be value, Show value, ToSQLObject value) => Column table value -> value -> IS be table
 
 data Clause be (table :: (Type -> Type) -> Type) where
   And :: [Clause be table] -> Clause be table
   Or :: [Clause be table] -> Clause be table
   Is ::
-    (ToJSON value, Ord value, Show value) =>
+    (ToJSON value, Ord value, Show value, ToSQLObject value) =>
     Column table value ->
     Term be value ->
     Clause be table
@@ -223,7 +224,7 @@ orderByQ (Desc column) item =
 
 data Set be table
   = forall value.
-    (B.BeamSqlBackendCanSerialize be value, ToJSON value) =>
+    (B.BeamSqlBackendCanSerialize be value, ToJSON value, ToSQLObject value) =>
     Set (Column table value) value
   | forall value.
     SetDefault (Column table value)
@@ -287,7 +288,8 @@ instance
   ( c ~ 'G.MetaSel ('Just name) _u _s _d,
     HasTableField name table (Maybe value),
     B.BeamSqlBackendCanSerialize be (Maybe value),
-    ToJSON value
+    ToJSON value,
+    ToSQLObject (Maybe value)
   ) =>
   GModelToSets be table (G.S1 c (G.Rec0 (Maybe value)))
   where
@@ -303,7 +305,8 @@ instance
   ( c ~ 'G.MetaSel ('Just name) _u _s _d,
     HasTableField name table value,
     B.BeamSqlBackendCanSerialize be value,
-    ToJSON value
+    ToJSON value,
+    ToSQLObject value
   ) =>
   GModelToSets be table (G.S1 c (G.Rec0 value))
   where
