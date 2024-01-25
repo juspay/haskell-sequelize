@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.33.0.
+-- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 492410794b7d56b74a2a0cc2cb2d4ea37d2c1711251fc612e511aab5adfc35e6
+-- hash: 4f5036bc14bc846828e0e27dec4a5fcfc5a0c8d4b152212b5f5ea2a5cc045e66
 
 name:           sequelize
 version:        1.1.0.0
@@ -21,6 +21,7 @@ library
   exposed-modules:
       Sequelize
       Sequelize.Encode
+      Sequelize.SQLObject
   other-modules:
       Paths_sequelize
   hs-source-dirs:
