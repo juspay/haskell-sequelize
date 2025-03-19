@@ -1,6 +1,6 @@
 {
   inputs = {
-    common.url = "github:juspay/nix-common/43ac9cc55c4fab7e9339e2a4e85ad1cfb9bb12e3";
+    common.url = "github:juspay/nix-common/98c6ae8b431b1008fc41ff20fc1cb64037e4ef5b";
     beam.url = "github:juspay/beam/b5f14b640110bcfab6bc86f07f864516b2d7ffd8";
     beam-mysql.url = "github:juspay/beam-mysql/895e10ffadb122a3393ce1274bb6b114435ba2fe";
     common.inputs.beam.follows = "beam";

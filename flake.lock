@@ -246,17 +246,17 @@
         "word24": "word24_2"
       },
       "locked": {
-        "lastModified": 1742397383,
-        "narHash": "sha256-qW39sUKvUFUGlzBBVBWJgbtkVR6aYTcFt7QZzgjxDOU=",
+        "lastModified": 1742399694,
+        "narHash": "sha256-OnoVzDrvKnAt4wdmCo1I8jbsVeoKtlY8CDhvM4vn608=",
         "owner": "juspay",
         "repo": "nix-common",
-        "rev": "43ac9cc55c4fab7e9339e2a4e85ad1cfb9bb12e3",
+        "rev": "98c6ae8b431b1008fc41ff20fc1cb64037e4ef5b",
         "type": "github"
       },
       "original": {
         "owner": "juspay",
         "repo": "nix-common",
-        "rev": "43ac9cc55c4fab7e9339e2a4e85ad1cfb9bb12e3",
+        "rev": "98c6ae8b431b1008fc41ff20fc1cb64037e4ef5b",
         "type": "github"
       }
     },
