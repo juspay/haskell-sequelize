@@ -13,9 +13,14 @@ module Sequelize
     -- * Statements
     sqlSelect,
     sqlSelectQ,
+    sqlCount,
+    sqlCountQ,
+    sqlSelect',
+    sqlDelete,
+    sqlDeleteLimit,
     sqlUpdate,
     sqlUpdate',
-
+    TableType(..),
     -- * WHERE
     Where,
     Clause (..),
@@ -46,9 +51,11 @@ module Sequelize
     columnize,
     fromColumnar',
     retypeQOrd,
+    EqValue (..)
   )
 where
 
+import Control.Monad (join)
 import Data.Aeson (ToJSON)
 import Data.Functor.Identity (Identity)
 import qualified Data.Generics.Product.Fields as L
@@ -64,6 +71,8 @@ import GHC.Generics (Generic)
 import qualified GHC.Generics as G
 import GHC.TypeLits (Symbol)
 import Named ((:!), (:?), arg, argF)
+import qualified Data.Maybe as DM
+import Streamly.Data.MutByteArray (Serialize)
 
 ----------------------------------------------------------------------------
 -- Column
@@ -90,13 +99,13 @@ isClausesToWhere :: WHERE be table -> Where be table
 isClausesToWhere = fmap (\(IS c v) -> Is c (Eq v))
 
 data IS be table where
-  IS :: (ToJSON value, Eq value, EqValue be value) => Column table value -> value -> IS be table
+  IS :: (Serialize value, ToJSON value, Ord value, EqValue be value, Show value) => Column table value -> value -> IS be table
 
 data Clause be (table :: (* -> *) -> *) where
   And :: [Clause be table] -> Clause be table
   Or :: [Clause be table] -> Clause be table
   Is ::
-    (ToJSON value, Eq value) =>
+    (Serialize value, ToJSON value, Ord value, Show value) =>
     Column table value ->
     Term be value ->
     Clause be table
@@ -197,8 +206,8 @@ instance
 ----------------------------------------------------------------------------
 
 data OrderBy table
-  = forall value. Asc (Column table value)
-  | forall value. Desc (Column table value)
+  = forall value. (Ord value) => Asc (Column table value)
+  | forall value. (Ord value) => Desc (Column table value)
 
 orderByQ ::
   (B.BeamSqlBackend be, B.Beamable table) =>
@@ -328,6 +337,15 @@ applyLimit mbLimit_ x = case mbLimit_ of
   Nothing -> x
   Just n -> B.limit_ (toInteger n) x
 
+applyIndexHints ::
+  (B.BeamSqlBackend be, B.Beamable table) =>
+  Maybe Text ->
+  (forall s. B.Q be db s (table (B.QExpr be s))) ->
+  (forall s. B.Q be db s (table (B.QExpr be s)))
+applyIndexHints mbLimit_ x = case mbLimit_ of
+  Nothing -> x
+  Just n -> B.forceIndex_ n x
+
 applyOffset ::
   (B.Beamable table) =>
   Maybe Int ->
@@ -346,13 +364,11 @@ applyOrderBy mbOrderBy_ x = case mbOrderBy_ of
   Nothing -> x
   Just ords -> B.orderBy_ (mapM orderByQ ords) x
 
-applyWhere ::
-  (B.BeamSqlBackend be, B.Beamable table) =>
-  Maybe (Where be table) ->
-  (forall s. B.Q be db s (table (B.QExpr be s))) ->
-  (forall s. B.Q be db s (table (B.QExpr be s)))
-applyWhere mbWhere_ = maybe id (B.filter_' . whereQ) mbWhere_
-
+applyWhere :: (B.BeamSqlBackend be, B.Beamable table) 
+           => Maybe (Where be table) 
+           -> (forall s. B.Q be db s (table (B.QExpr be s)))
+           -> B.Q be db s (table (B.QExpr be s))
+applyWhere mbWhere_ q = maybe q (\w -> B.filter_' (whereQ w) q) mbWhere_
 ----------------------------------------------------------------------------
 -- Class
 ----------------------------------------------------------------------------
@@ -360,6 +376,8 @@ applyWhere mbWhere_ = maybe id (B.filter_' . whereQ) mbWhere_
 class ModelMeta table where
   modelFieldModification :: table (B.FieldModification (B.TableField table))
   modelTableName :: Text
+  modelTableType :: Maybe TableType
+  modelTableType = Nothing
   modelSchemaName :: Maybe Text
   modelSchemaName = Nothing
   mkExprWithDefault :: forall be s.
@@ -368,6 +386,14 @@ class ModelMeta table where
     table Identity ->
     B.SqlInsertValues be (table (B.QExpr be s))
   mkExprWithDefault t = B.insertExpressions ( [B.val_ t] :: forall s'. [table (B.QExpr be s')])
+  mkMultiExprWithDefault :: forall be s.
+    (B.BeamSqlBackend be, B.Beamable table,
+     B.FieldsFulfillConstraint (B.BeamSqlBackendCanSerialize be) table) =>
+    [table Identity] ->
+    B.SqlInsertValues be (table (B.QExpr be s))
+  mkMultiExprWithDefault t = B.insertExpressions ( B.val_ <$> t :: forall s'. [table (B.QExpr be s')])
+  mbSetAutoIncrementPrimaryId :: Maybe (Integer -> table Identity -> table Identity)
+  mbSetAutoIncrementPrimaryId = Nothing
 
 type Model be table =
   ( B.BeamSqlBackend be,
@@ -384,19 +410,21 @@ type Model be table =
 modelTableEntity ::
   forall table be db.
   Model be table =>
+  Text ->
   B.DatabaseEntity be db (B.TableEntity table)
-modelTableEntity =
+modelTableEntity schemaName =
   let B.EntityModification modification =
         B.modifyTableFields (modelFieldModification @table)
           <> B.setEntityName (modelTableName @table)
-          <> B.setEntitySchema (modelSchemaName @table)
-   in appEndo modification $ B.DatabaseEntity $ B.dbEntityAuto (modelTableName @table)
+          <> B.setEntitySchema (Just schemaName)
+   in appEndo modification $ B.DatabaseEntity $ B.dbEntityAuto ( modelTableName @table)
 
 modelTableEntityDescriptor ::
   forall table be.
   Model be table =>
+  Text ->
   B.DatabaseEntityDescriptor be (B.TableEntity table)
-modelTableEntityDescriptor = let B.DatabaseEntity x = modelTableEntity @table in x
+modelTableEntityDescriptor schemaName = let B.DatabaseEntity x = modelTableEntity @table schemaName in x
 
 ----------------------------------------------------------------------------
 -- End-to-end
@@ -417,9 +445,54 @@ sqlSelect ::
   "orderBy" :? [OrderBy table] ->
   "offset" :? Int ->
   "limit" :? Int ->
+  "forceIndex" :? Text ->
+  Text ->
   B.SqlSelect be (table Identity)
-sqlSelect argWhere argOrder argOffset argLimit =
-  B.select (sqlSelectQ @(DatabaseWith table) argWhere argOrder argOffset argLimit)
+sqlSelect argWhere argOrder argOffset argLimit argForceIndex schemaName =
+  B.select (sqlSelectQ @(DatabaseWith table) argWhere argOrder argOffset argLimit argForceIndex schemaName)
+
+sqlCount ::
+  forall be table.
+  (B.HasQBuilder be, Model be table) =>
+  -- Note: using 'where_' instead of 'where' because #where messes up indentation in Emacs
+  "where_" :? Where be table ->
+  "orderBy" :? [OrderBy table] ->
+  "offset" :? Int ->
+  "limit" :? Int ->
+  "forceIndex" :? Text ->
+  Text ->
+  B.SqlSelect be Int
+sqlCount argWhere argOrder argOffset argLimit argForceIndex schemaName =
+  B.select (sqlCountQ @(DatabaseWith table) argWhere argOrder argOffset argLimit argForceIndex schemaName)
+
+sqlCountQ ::
+  forall db be table.
+  (B.Database be db, B.HasQBuilder be, Model be table) =>
+  "where_" :? Where be table ->
+  "orderBy" :? [OrderBy table] ->
+  "offset" :? Int ->
+  "limit" :? Int ->
+  "forceIndex" :? Text ->
+  Text ->
+  (forall s. B.Q be db s (B.WithRewrittenThread
+                          (B.QNested s) s
+                          (B.WithRewrittenContext
+                             (B.QGenExpr B.QAggregateContext be (B.QNested s) Int)
+                             B.QValueContext)))
+sqlCountQ
+  (argF #where_ -> mbWhere_)
+  (argF #orderBy -> mbOrderBy_)
+  (argF #offset -> mbOffset_)
+  (argF #limit -> mbLimit_) 
+  (argF #forceIndex -> mbForceIndex_ )
+  schemaName =
+    B.aggregate_ (\_ -> B.as_ @Int B.countAll_)
+      $ applyLimit mbLimit_
+      $ applyOffset mbOffset_
+      $ applyOrderBy mbOrderBy_
+      $ applyWhere mbWhere_
+      $ applyIndexHints mbForceIndex_
+      $ B.all_ (modelTableEntity @table @be @db schemaName)
 
 -- | Like 'sqlSelect', but can be used as a part of a bigger SELECT.
 sqlSelectQ ::
@@ -429,29 +502,102 @@ sqlSelectQ ::
   "orderBy" :? [OrderBy table] ->
   "offset" :? Int ->
   "limit" :? Int ->
+  "forceIndex" :? Text ->
+  Text ->
   (forall s. B.Q be db s (table (B.QExpr be s)))
 sqlSelectQ
   (argF #where_ -> mbWhere_)
   (argF #orderBy -> mbOrderBy_)
   (argF #offset -> mbOffset_)
-  (argF #limit -> mbLimit_) =
+  (argF #limit -> mbLimit_)
+  (argF #forceIndex -> forceIndex_)
+  schemaName =
     applyLimit mbLimit_
       $ applyOffset mbOffset_
       $ applyOrderBy mbOrderBy_
       $ applyWhere mbWhere_
-      $ B.all_ (modelTableEntity @table @be @db)
+      $ applyIndexHints forceIndex_
+      $ B.all_ (modelTableEntity @table @be @db schemaName)
+
+sqlSelect' ::
+  forall be table.
+  (B.HasQBuilder be, Model be table) =>
+  "where_" :? Where be table ->
+  "orderBy" :? Maybe [OrderBy table] ->
+  "offset" :? Maybe Int ->
+  "limit" :? Maybe Int ->
+  "forceIndex" :? Maybe Text ->
+  Text ->
+  B.SqlSelect be (table Identity)
+sqlSelect' argWhere argOrder argOffset argLimit argForceIndex schemaName =
+  B.select (sqlSelectQ' @(DatabaseWith table) argWhere argOrder argOffset argLimit argForceIndex schemaName)
+
+sqlSelectQ' ::
+  forall db be table.
+  (B.Database be db, B.HasQBuilder be, Model be table) =>
+  "where_" :? Where be table ->
+  "orderBy" :? Maybe [OrderBy table] ->
+  "offset" :? Maybe Int ->
+  "limit" :? Maybe Int ->
+  "forceIndex" :? Maybe Text ->
+  Text ->
+  (forall s. B.Q be db s (table (B.QExpr be s)))
+sqlSelectQ'
+  (argF #where_ -> mbWhere_)
+  (argF #orderBy -> mbOrderBy_)
+  (argF #offset -> mbOffset_)
+  (argF #limit -> mbLimit_)
+  (argF #forceIndex -> forceIndex_)
+  schemaName =
+    applyLimit (join mbLimit_)
+      $ applyOffset (join mbOffset_)
+      $ applyOrderBy (join mbOrderBy_)
+      $ applyWhere mbWhere_
+      $ applyIndexHints (join forceIndex_)
+      $ B.all_ (modelTableEntity @table @be @db schemaName)
+
+sqlDelete ::
+  forall be table.
+  (B.HasQBuilder be, Model be table) =>
+  "where_" :? Where be table ->
+  Text ->
+  B.SqlDelete be table
+sqlDelete
+  (argF #where_ -> mbWhere_)
+  schemaName =
+    B.delete'
+      (modelTableEntity schemaName)
+      (\item -> maybe (B.sqlBool_ (B.val_ True)) (flip whereQ item) mbWhere_)
+
+sqlDeleteLimit ::
+  forall be table.
+  (B.HasQBuilder be, Model be table) =>
+  "where_" :? Where be table ->
+  "limit_" :? Maybe Int ->
+  Text ->
+  B.SqlDelete be table
+sqlDeleteLimit
+  (argF #where_ -> mbWhere_)
+  (argF #limit_ -> mbLimit_)
+  schemaName =
+    B.deleteWLimit
+      (DM.fromMaybe Nothing mbLimit_)
+      (modelTableEntity schemaName)
+      (\item -> maybe (B.sqlBool_ (B.val_ True)) (flip whereQ item) mbWhere_)
 
 sqlUpdate ::
   forall be table.
   (B.HasQBuilder be, Model be table) =>
   "set" :! [Set be table] ->
   "where_" :? Where be table ->
+  Text ->
   B.SqlUpdate be table
 sqlUpdate
   (arg #set -> set_)
-  (argF #where_ -> mbWhere_) =
+  (argF #where_ -> mbWhere_)
+  schemaName =
     B.update'
-      modelTableEntity
+      (modelTableEntity schemaName)
       (\item -> mconcat $ map (setQ item) set_)
       (\item -> maybe (B.sqlBool_ (B.val_ True)) (flip whereQ item) mbWhere_)
 
@@ -460,12 +606,14 @@ sqlUpdate' ::
   (B.HasQBuilder be, Model be table, ModelToSets be table) =>
   "save" :! table Identity ->
   "where_" :? Where be table ->
+  Text ->
   B.SqlUpdate be table
 sqlUpdate'
   (arg #save -> save_)
-  (argF #where_ -> mbWhere_) =
+  (argF #where_ -> mbWhere_)
+  schemaName =
     B.update'
-      modelTableEntity
+      (modelTableEntity schemaName)
       (\item -> mconcat $ map (setQ item) (modelToSets save_))
       (\item -> maybe (B.sqlBool_ (B.val_ True)) (flip whereQ item) mbWhere_)
 
@@ -485,3 +633,6 @@ fromColumnar' (B.Columnar' x) = x
 
 retypeQOrd :: B.QOrd be s a -> B.QOrd be s b
 retypeQOrd (B.QOrd x) = B.QOrd x
+
+data TableType = DOMAIN | CONFIG | COMMON_CONFIG | TRACKER | COMMON_TRACKER
+  deriving (Show, Eq)
