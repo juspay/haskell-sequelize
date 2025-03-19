@@ -8,6 +8,8 @@ module Sequelize.Encode
 where
 
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Key as AK
+import qualified Data.Aeson.KeyMap as KM
 import qualified Data.HashMap.Strict as HM
 import Data.Kind ()
 import Data.Text (Text)
@@ -21,7 +23,7 @@ modelEncodeWhere ::
   Model be table =>
   Where be table ->
   Aeson.Object
-modelEncodeWhere w = encodeWhere modelTableEntityDescriptor w
+modelEncodeWhere w = encodeWhere (modelTableEntityDescriptor "default_schema") w
 
 encodeWhere ::
   forall be table.
@@ -43,21 +45,21 @@ encodeClause dt w =
         Or cs -> foldOr cs
         Is column val -> foldIs column val
       foldAnd = \case
-        [] -> HM.empty
+        [] -> KM.empty
         [x] -> foldWhere' x
         xs
           | Just maps <- mapM fromIs xs -> mconcat maps
-          | otherwise -> HM.singleton "$and" (Aeson.toJSON $ map foldWhere' xs)
+          | otherwise -> KM.singleton "$and" (Aeson.toJSON $ map foldWhere' xs)
       foldOr = \case
-        [] -> HM.empty
+        [] -> KM.empty
         [x] -> foldWhere' x
-        xs -> HM.singleton "$or" (Aeson.toJSON $ map foldWhere' xs)
+        xs -> KM.singleton "$or" (Aeson.toJSON $ map foldWhere' xs)
       foldIs :: Aeson.ToJSON a => Column table value -> Term be a -> Aeson.Object
       foldIs column val =
         let key =
               B._fieldName . fromColumnar' . column . columnize $
                 B.dbTableSettings dt
-         in HM.singleton key $ encodeTerm val
+         in KM.singleton (AK.fromText key) $ encodeTerm val
       fromIs :: Clause be table -> Maybe Aeson.Object
       fromIs = \case
         Is column val -> Just (foldIs column val)
@@ -97,7 +99,7 @@ encodeTerm = \case
   Not term -> single encodeTerm "$not" term
 
 array :: (a -> Aeson.Value) -> Text -> [a] -> Aeson.Value
-array f k vs = Aeson.toJSON $ HM.singleton k $ map f vs
+array f k vs = Aeson.toJSON $ KM.singleton (AK.fromText k) $ map f vs
 
 single :: (a -> Aeson.Value) -> Text -> a -> Aeson.Value
-single f k v = Aeson.toJSON $ HM.singleton k $ f v
+single f k v = Aeson.toJSON $ KM.singleton (AK.fromText k) $ f v
